@@ -15,3 +15,11 @@ GTAGS
 auto-save-list
 tramp
 .\#*
+*.cmd
+*.symvers
+*.ko
+*.mod
+*.mod.c
+*.mod.o
+*.o
+*.order
