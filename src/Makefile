@@ -14,3 +14,11 @@ clean:
 	$(MAKE) -C $(KDIR) M=$(PWD) clean
 
 all: lkm_example1, lkm_example2
+
+test:
+	sudo dmesg -C
+	sudo insmod lkm_example1.ko
+	sudo rmmod lkm_example1.ko
+	sudo insmod lkm_example2.ko
+	sudo rmmod lkm_example2.ko
+	sudo dmesg
