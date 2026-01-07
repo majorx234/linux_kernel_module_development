@@ -7,9 +7,6 @@ PWD = $(shell pwd)
 lkm_example1:
 	$(MAKE) -C $(KDIR) M=$(PWD) modules
 
-lkm_example2:
-	$(MAKE) -C $(KDIR) M=$(PWD) modules
-
 clean:
 	$(MAKE) -C $(KDIR) M=$(PWD) clean
 
