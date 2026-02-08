@@ -1,6 +1,7 @@
 build/
-material/
+.ccls-cache/
 .cache/
+material/
 GPATH
 GRTAGS
 GTAGS
@@ -23,3 +24,6 @@ tramp
 *.mod.o
 *.o
 *.order
+
+##### Kate
+*.kate-swp
