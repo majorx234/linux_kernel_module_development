@@ -49,6 +49,10 @@ static struct usb_driver lkm_example3_usb_driver = {
 
 /**
  * @brief This function is called, when the module is loaded into the kernel
+ *
+ * through usb_register the driver registers
+ * its name, probe and disconnect function and indicates with `id_table` the suitable hardware
+ *
  */
 static int __init lkm_example3_init(void) {
   int result;
@@ -62,7 +66,7 @@ static int __init lkm_example3_init(void) {
 }
 
 /**
- * @brief This function is called, when the module is rmoeved from the kernel
+ * @brief This function is called, when the module is removed from the kernel
  */
 static void __exit lkm_example3_exit(void) {
   printk(KERN_INFO "lkm_example3 exit\n");

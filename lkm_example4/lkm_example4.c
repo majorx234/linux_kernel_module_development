@@ -18,7 +18,17 @@ MODULE_VERSION("0.01");
 struct usb_device *dev;
 static DEFINE_MUTEX( ulock );
 
-// character device file
+/**
+ * @brief This function is called, when device file is read
+ *
+ * sends via `usb_control_msg()` a status request to device, specifying a pipe as back channel
+ *
+ * @param instance
+ * @param buffer
+ * @param count
+ * @param ofs
+ * @return 0 when probing was succesful
+ */
 static ssize_t lkm_example4_usb_driver_read(struct file *instance, char *buffer,
                                size_t count, loff_t *ofs)
 {
@@ -45,7 +55,12 @@ static ssize_t lkm_example4_usb_driver_read(struct file *instance, char *buffer,
   return count;
 }
 
-static int lkm_example4_usb_driver_open(struct inode *devicefile, struct file *instanz)
+/**
+ * @brief This function is called, when device file is opened
+ * @param devicefile
+ * @param instance - file
+ */
+static int lkm_example4_usb_driver_open(struct inode *devicefile, struct file *instance)
 {
   return 0;
 }
@@ -68,10 +83,16 @@ struct usb_class_driver class_descr = {
   .minor_base = 16,
 };
 
+/**
+ * @brief is called when device is attached to usb. Specifies a physical device ID as a device node property so that the bus driver can find the appropriate device driver for this device node
+ * @param intf interface (see usb standard) to deal with
+ * @param id pointer to the entry of the table above (could be mutiple)
+ * @return 0 when probing was succesful
+ */
 static int lkm_example4_probe(struct usb_interface *intf, const struct usb_device_id* id) {
   printk("lkm_example4 usb driver - probe function\n");
   dev = interface_to_usbdev(intf);
-  printk("usbcheck: 0x%4.4x|0x%4.4x, if=%p\n",
+  printk("lkm_example4 usb driver: 0x%4.4x|0x%4.4x, if=%p\n",
          dev->descriptor.idVendor, dev->descriptor.idProduct, intf);
   if (dev->descriptor.idVendor == VENDOR_ID
       && dev->descriptor.idProduct == PRODUCT_ID) {
@@ -84,6 +105,10 @@ static int lkm_example4_probe(struct usb_interface *intf, const struct usb_devic
   return -ENODEV;
 }
 
+/**
+ * @brief This function is called, when the device is diconnected or unload the driver
+ * @param intf interface (see usb standard) to deal with
+ */
 static void lkm_example4_disconnect( struct usb_interface *intf )
 {
   /* need to wait for last commands in que */
@@ -92,25 +117,39 @@ static void lkm_example4_disconnect( struct usb_interface *intf )
   mutex_unlock( &ulock );
 }
 
-static struct usb_driver lkm_example4 = {
+static struct usb_driver lkm_example4_usb_driver = {
   .name = "lkm_example4",
   .id_table = lkm_example4_usb_table,
   .probe = lkm_example4_probe,
   .disconnect = lkm_example4_disconnect,
 };
 
+/**
+ * @brief This function is called, when the module is loaded into the kernel
+ *
+ * through usb_register the driver registers
+ * its name, probe and disconnect function and indicates with `id_table` the suitable hardware
+ *
+ */
 static int __init lkm_example4_init(void)
 {
-  if (usb_register(&lkm_example4) ) {
+  int result;
+  printk(KERN_INFO "lkm_example4 init\n");
+  result = usb_register(&lkm_example4_usb_driver);
+  if ( result ) {
     printk("lkm_example4: register usb driver failed\n");
-    return -EIO;
+    return -result;
   }
   return 0;
 }
 
+/**
+ * @brief This function is called, when the module is rmoeved from the kernel
+ */
 static void __exit lkm_example4_exit(void)
 {
-  usb_deregister(&lkm_example4);
+  printk(KERN_INFO "lkm_example4 exit\n");
+  usb_deregister(&lkm_example4_usb_driver);
 }
 
 module_init(lkm_example4_init);
